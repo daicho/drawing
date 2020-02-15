@@ -13,6 +13,9 @@ ActiveRecord::Base.establish_connection :development
 class Account < ActiveRecord::Base
 end
 
+class Post < ActiveRecord::Base
+end
+
 get '/' do
     redirect '/login'
 end
