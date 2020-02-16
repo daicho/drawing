@@ -3,16 +3,21 @@ require 'sinatra'
 require 'digest/md5'
 require 'active_record'
 
+# 投稿種類
+TYPE_TEXT = 0
+TYPE_DRAW = 1
+
 # 各種設定
-PAGE_MAX = 10  # 1ページに表示できる最大件数
-ID_LEN = 8     # IDの長さ
-NAME_MAX = 32  # 名前の最大文字数
-TEXT_MAX = 512 # 書き込みの最大文字数
+NAME_MAX = 32   # 名前の最大文字数
+USERID_MAX = 32 # ユーザーIDの最大文字数
+PASS_MAX = 32   # パスワードの最大文字数
+PAGE_MAX = 10   # 1ページに表示できる最大件数
+TEXT_MAX = 512  # 書き込みの最大文字数
 
 set :environment, :production
 set :sessions,
     expire_after: 7200,
-    secret: 'abcdefghij0123456789'
+    secret: 'naganokosen3818850'
 
 ActiveRecord::Base.configurations = YAML.load_file('database.yml')
 ActiveRecord::Base.establish_connection :development
@@ -21,16 +26,6 @@ class Account < ActiveRecord::Base
 end
 
 class Post < ActiveRecord::Base
-end
-
-# 現在の日時を取得
-def get_time
-    return Time.now.strftime("%Y/%m/%d(%a) %H:%M:%S")
-end
-
-# 数値かどうか判定
-def is_number(str)
-    return str =~ /^[0-9]+$/
 end
 
 # 投稿の件数に対するページ数を返す
@@ -44,37 +39,14 @@ end
 
 # 1ページ目にリダイレクト
 get '/' do
-    redirect '/1'
+    posts_len = Post.all.length
+    redirect "/#{page_num(posts_len)}"
 end
 
 # エラーページ
-get '/err' do
+get '/error' do
+    @title = 'Error'
     erb :error
-end
-
-# ページ指定
-get '/:page' do
-    # 数値が指定されているか
-    if is_number(params[:page])
-        @page = params[:page].to_i
-    else
-        redirect '/err'
-    end
-
-    @posts = Post.all
-    @posts_len = @posts.length
-    @last_page = page_num(@posts_len)
-
-    @page_max = PAGE_MAX
-    @text_max = TEXT_MAX
-    @name_max = NAME_MAX
-
-    # 無効なページ数が指定されたらエラー
-    if @page <= 0 or @last_page < @page
-        redirect '/err'
-    end
-
-    erb :main
 end
 
 # 前のページへ
@@ -97,99 +69,108 @@ post '/next' do
     end
 end
 
-# 新規投稿
-post '/new' do
-    posts = Post.all
-    posts_len = posts.length
-    post = Post.new
+# テキスト投稿
+post '/new_text' do
+    if session[:login_flag]
+        post = Post.new
 
-    # IDを決定
-    if posts_len == 0
-        post.id = format("%0#{ID_LEN}d", 1)
+        # 入力内容を取得
+        text = params[:text].slice(0, TEXT_MAX)
+        text = CGI.escapeHTML(text)
+        text = text.gsub(/(\r\n|\r|\n)/, '<br>')
+
+        # データベースへ書き込み
+        post.number = Post.all.length + 1
+        post.exist = 1
+        post.kind = TYPE_TEXT
+        post.time = Time.now.strftime('%Y/%m/%d(%a) %H:%M:%S')
+        post.userid = session[:login_userid]
+        post.text = text
+        post.origin = 0
+        post.save
+
+        redirect '/'
     else
-        post.id = format("%0#{ID_LEN}d", posts[-1].id.to_i + 1)
+        redirect '/badrequest'
     end
-
-    # 入力内容を取得
-    text = params[:text].slice(0, TEXT_MAX)
-    text = CGI.escapeHTML(text)
-    name = params[:name].slice(0, NAME_MAX)
-
-    # データベースへ書き込み
-    post.time = get_time()
-    post.text = text.gsub(/(\r\n|\r|\n)/, '<br>')
-    post.name = CGI.escapeHTML(name)
-    post.save
-
-    # 最新のページを表示
-    redirect "/#{page_num(posts_len + 1)}"
 end
 
 # 投稿を削除
-delete '/del' do
-    post = Post.find(params[:id])
-    post.destroy
-    redirect '/'
+delete '/delete' do
+    post = Post.find(params[:number])
+
+    if session[:login_flag] && post.userid == session[:login_userid]
+        post.exist = 0
+        post.save
+        redirect '/'
+    else
+        redirect '/badrequest'
+    end
+end
+
+# お絵かき
+get '/draw' do
+    @title = 'イラスト投稿'
+    erb :draw
 end
 
 # 新規登録
 get '/signup' do
-    username = "idaten"
-    rawpasswd = "tokyo2020"
-    algorithm = "1"
-    r = Random.new
-    salt = Digest::MD5.hexdigest(r.bytes(20))
-    hashed = Digest::MD5.hexdigest(salt + rawpasswd)
+    @name_max = NAME_MAX
+    @userid_max = USERID_MAX
+    @pass_max = PASS_MAX
+    @title = '新規登録'
+    erb :signup
+end
 
-    puts "salt = #{salt}"
-    puts "username = #{username}"
-    puts "raw password = #{rawpasswd}"
-    puts "algorithm = #{algorithm}"
-    puts "hashed password = #{hashed}"
+# ユーザー登録
+post '/regist' do
+    name = params[:name]
+    userid = params[:userid]
+    password = params[:password]
+    re_password = params[:re_password]
 
-    # Update database
-    s = Account.new
-    s.id = username
-    s.salt = salt
-    s.hashed = hashed
-    s.algo = algorithm
-    s.save
+    if password == re_password
+        r = Random.new
+        salt = Digest::MD5.hexdigest(r.bytes(20))
+        hashed = Digest::MD5.hexdigest(salt + password)
 
-    # Display all entries in database
-    @s = Account.all
-    @s.each do |a|
-        puts a.id + "\t" + a.salt + "\t" + a.hashed + "\t" + a.algo
+        a = Account.new
+        a.userid = userid
+        a.salt = salt
+        a.hashed = hashed
+        a.name = name
+        a.save
+
+        session[:login_flag] = true
+        session[:login_userid] = userid
+        redirect '/'
+    else
+        redirect '/badrequest'
     end
 end
 
 # ログイン
 get '/login' do
-    erb :loginscr
+    @userid_max = USERID_MAX
+    @pass_max = PASS_MAX
+    @title = 'ログイン'
+    erb :login
 end
 
 # 認証
 post '/auth' do
-    username = params[:uname]
-    passwd = params[:pass]
+    userid = params[:userid]
+    password = params[:password]
 
-    if Account.exists?(username)
-        a = Account.find(username)
-        db_username = a.id
-        db_salt = a.salt
-        db_hashed = a.hashed
-        db_algo = a.algo
+    if Account.exists?(userid)
+        a = Account.find(userid)
+        trial_hashed = Digest::MD5.hexdigest(a.salt + password)
 
-        if db_algo == "1"
-            trial_hashed = Digest::MD5.hexdigest(db_salt + passwd)
-        else
-            puts "Unknown algorithm is userd for user #{username}."
-            exit(-2)
-        end
-
-        if db_hashed == trial_hashed
+        if a.hashed == trial_hashed
             session[:login_flag] = true
-            session[:testdata] = "Is this a holdup?"
-            redirect '/contentspace'
+            session[:login_userid] = userid
+            redirect '/'
         else
             session[:login_flag] = false
             redirect '/failure'
@@ -202,21 +183,41 @@ end
 
 # ログイン失敗
 get '/failure' do
+    @title = 'Login Failed'
     erb :failure
-end
-
-# コンテンツページ
-get '/contentspace' do
-    if session[:login_flag] == true
-        @a = session[:testdata]
-        erb :contents
-    else
-        erb :badrequest
-    end
 end
 
 # ログアウト
 get '/logout' do
     session.clear
+    @title = 'ログアウト'
     erb :logout
+end
+
+# バッドリクエスト
+get '/badrequest' do
+    @title = 'Bad Request'
+    erb :badrequest
+end
+
+# ページ指定
+get '/:page' do
+    # 数値が指定されているか
+    if params[:page] =~ /^[0-9]+$/
+        @page = params[:page].to_i
+    else
+        redirect '/error'
+    end
+
+    @last_page = page_num(Post.all.length)
+    @page_max = PAGE_MAX
+    @text_max = TEXT_MAX
+
+    # 無効なページ数が指定されたらエラー
+    if @page <= 0 or @last_page < @page
+        redirect '/error'
+    else
+        @title = '掲示板'
+        erb :bbs
+    end
 end

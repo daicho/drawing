@@ -1,0 +1,7 @@
+  <form action="/regist" method="post">
+    ユーザー名        <input required type="text" name="name" size="40" maxlength="<%= @name_max %>"><br>
+    ユーザーID        <input required type="text" name="userid" size="40" maxlength="<%= @userid_max %>"><br>
+    パスワード        <input required type="password" name="password" size="40" maxlength="<%= @pass_max %>"><br>
+    パスワード (確認) <input required type="password" name="re_password" size="40" maxlength="<%= @pass_max %>"><br><br>
+    <input type="submit" value="ログイン">
+  </form>

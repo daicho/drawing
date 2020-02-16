@@ -2,13 +2,12 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Jmail</title>
+  <title><%= @title %> - ABCDrawing</title>
+  <link rel="stylesheet" href="/css/common.css">
 </head>
 <body>
-  <center>
-  <h2>Jmail</h2>
-  </center>
-
+  <a href="/"><h1>ABCDrawing</h1></a>
+  <h2><%= @title %></h2>
   <%= yield %>
 </body>
 </html>

@@ -1,0 +1,80 @@
+  <% if session[:login_flag] %>
+    <a href="/logout">ログアウト</a><br>
+  <% else %>
+    <a href="/login">ログイン</a><br>
+    <a href="/signup">新規登録</a><br>
+  <% end %>
+
+  <!-- ページ操作 -->
+  <div class="page">
+    <div class="prev">
+      <form method="post"action="/prev">
+        <input type="submit" value="Prev" <%= @page == 1 ? 'disabled' : ''  %>>
+        <input type="hidden" name="page" value="<%= @page %>">
+      </form>
+    </div>
+
+    <div class="pagenum">
+      <%= @page %>/<%= @last_page %>
+    </div>
+
+    <div class="next">
+      <form method="post" action="/next">
+        <input type="submit" value="Next" <%= @page == @last_page ? 'disabled' : '' %>>
+        <input type="hidden" name="page" value="<%= @page %>">
+      </form>
+    </div>
+  </div>
+  <hr>
+
+  <!-- 投稿一覧 -->
+  <div class="post">
+    <%# 表示件数を決定 %>
+    <% if Post.all.length == 0 %>
+      <% disp_len = 0 %>
+    <% elsif @page == @last_page %>
+      <% disp_len = (Post.all.length - 1) % @page_max + 1 %>
+    <% else %>
+      <% disp_len = @page_max %>
+    <% end %>
+
+    <%# 投稿を表示 %>
+    <% cur_posts = Post.all[(@page - 1) * @page_max, disp_len] %>
+    <% cur_posts.each do |post| %>
+      <% account = Account.find(post.userid) %>
+      <div class="sig">
+        <table cellspacing="10">
+          <tr align="left">
+            <td class="number"><%= post.number %></td>
+            <td class="name"><%= post.exist == 1 ? account.name : '削除されました' %></td>
+            <td class="time"><%= post.exist == 1 ? post.time : '削除されました' %></td>
+
+            <% if post.exist == 1 && post.userid == session[:login_userid] %>
+              <form method="post" action="/delete">
+                <td><input type="submit" value="削除"></td>
+                <input type = "hidden" name="number" value="<%= post.number %>">
+                <input type = "hidden" name="_method" value="delete">
+              </form>
+            <% end %>
+          </tr>
+        </table>
+      </div>
+      <div class="text">
+        <%= post.exist == 1 ? post.text : '削除されました' %><br>
+      </div>
+      <hr>
+    <% end %>
+  </div>
+
+  <!-- 入力フォーム -->
+  <% if session[:login_flag] %>
+    <div class="input">
+      <form method="post" action="/new_text">
+        <textarea required name="text" rows="8" cols="40" maxlength="<%= @text_max %>" \
+            placeholder="最大<%= @text_max %>文字"></textarea><br>
+        <input type="submit" value="書き込み">
+      </form>
+    </div>
+
+    <a href="/draw">イラストを書き込み</a>
+  <% end %>
