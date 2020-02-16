@@ -6,37 +6,39 @@ let Mode = {
 
 // ペンの色
 let Color = {
-    deepRed: [193, 39, 45],
-    red: [255, 0, 0],
-    salmonPink: [237, 30, 121],
-    hotPink: [255, 105, 180],
-    pink: [255, 192, 203],
-    purple: [160, 0, 160],
-    blue: [0, 0, 255],
-    deepBlue: [0, 113, 176],
-    lightBlue: [50, 200, 255],
-    vividBlue: [0, 255, 255],
-    green: [0, 255, 0],
-    yellow: [255, 255, 0],
+    deepRed:     [193, 39, 45],
+    red:         [255, 0, 0],
+    salmonPink:  [237, 30, 121],
+    hotPink:     [255, 105, 180],
+    pink:        [255, 192, 203],
+    purple:      [160, 0, 160],
+    blue:        [0, 0, 255],
+    deepBlue:    [0, 113, 176],
+    lightBlue:   [50, 200, 255],
+    vividBlue:   [0, 255, 255],
+    green:       [0, 255, 0],
+    yellow:      [255, 255, 0],
     vividOrange: [251, 176, 59],
-    orange: [247, 147, 30],
-    beige: [198, 156, 109],
-    vividGreen: [127, 200, 33],
-    darkGreen: [85, 107, 47],
-    gray: [128, 128, 128],
-    black: [20, 20, 20],
-    white: [255, 255, 255],
+    orange:      [247, 147, 30],
+    beige:       [198, 156, 109],
+    vividGreen:  [127, 200, 33],
+    darkGreen:   [85, 107, 47],
+    gray:        [128, 128, 128],
+    black:       [20, 20, 20],
+    white:       [255, 255, 255],
 };
 
-// ログを表すクラス
-function Log(canvas) {
-    this.top = 0;
-    this.current = 0;
-    this.log = [];
-    this.canvas = canvas;
+// 履歴を表すクラス
+class History {
+    constructor(canvas) {
+        this.top = 0;
+        this.current = 0;
+        this.log = [canvas];
+        this.canvas = canvas;
+    }
 
     // 現在の状態を記録
-    this.push = function () {
+    push() {
         // ログ用のキャンバスを用意
         let logCanvas = document.createElement("canvas");
         logCanvas.width = this.canvas.width;
@@ -53,8 +55,7 @@ function Log(canvas) {
     }
 
     // 元に戻す
-    this.undo = function () {
-        console.log(this.current);
+    undo() {
         if (this.current <= 0) {
             return null;
         } else {
@@ -64,8 +65,7 @@ function Log(canvas) {
     }
 
     // やり直し
-    this.redo = function () {
-        console.log(this.current);
+    redo() {
         if (this.current >= this.top) {
             return null;
         } else {
@@ -80,7 +80,7 @@ let imageCanvas;
 let imageContext;
 let canvas;
 let context;
-let log;
+let history;
 
 // 座標
 let x, y;
@@ -99,7 +99,7 @@ function init() {
     context = canvas.getContext("2d");
     imageCanvas = document.getElementById("imageCanvas");
     imageContext = imageCanvas.getContext("2d");
-    log = new Log(canvas);
+    history = new History(canvas);
 
     // イベントリスナーを登録
     canvas.addEventListener("mousemove", onMove, false);
@@ -111,7 +111,7 @@ function init() {
 // マウスアップ
 function drawEnd() {
     if (drawing)
-        log.push();
+        history.push();
 
     px = null;
     py = null;
@@ -151,7 +151,7 @@ function drawLine(X, Y) {
             context.globalCompositeOperation = "source-over";
             break;
 
-        case Mode.pen: // 消しゴム
+        case Mode.eraser: // 消しゴム
             context.globalCompositeOperation = "destination-out";
             break;
     }
@@ -176,12 +176,12 @@ function drawLine(X, Y) {
 
 // 元に戻す
 function undo() {
-    copyCanvas(log.undo());
+    copyCanvas(history.undo());
 }
 
 // やり直し
 function redo() {
-    copyCanvas(log.redo());
+    copyCanvas(history.redo());
 }
 
 // キャンバスをコピー
@@ -199,38 +199,17 @@ function copyCanvas(srcCanvas) {
         context.globalCompositeOperation = "destination-out";
 }
 
-// 最後の完成写真を合成して保存する関数
-function savePictures() {
-    if (mode == Mode.stampEdit) {
-        stamp.apply();
-        stamp = null;
-        createCache();
-    } else if (mode == Mode.textEdit) {
-        text.apply();
-        text = null;
-        createCache();
-    }
+// 投稿
+function post() {
+    let finalCanvas = document.createElement("canvas")
+    finalCanvas.width = canvas.width;
+    finalCanvas.height = canvas.height;
 
-    for (let i = 0; i < 3; i++) {
-        let backCanvas = document.createElement('canvas')
-        backCanvas.width = pictures[i].width;
-        backCanvas.height = pictures[i].height;
+    let finalContext = finalCanvas.getContext("2d");
+    finalContext.drawImage(document.getElementById("imageCanvas"), 0, 0);
+    finalContext.drawImage(canvas, 0, 0);
 
-        let bctx = backCanvas.getContext("2d");
-        bctx.drawImage(pictures[i], 0, 0, backCanvas.width, backCanvas.height);
-
-        let toImgCanvas = log[i].log[log[i].current];
-        bctx.drawImage(toImgCanvas, 0, 0, backCanvas.width, backCanvas.height);
-
-        let base64 = backCanvas.toDataURL('image/png');
-        $.ajax({
-            type: 'POST',
-            url: '/draw',
-            data: {
-                cnt: i + 1,
-                img: base64
-            },
-            async: false
-        });
-    }
+    let image = finalCanvas.toDataURL("image/png");
+    document.forms.new_draw.image.value = image;
+    document.forms.new_draw.submit();
 }

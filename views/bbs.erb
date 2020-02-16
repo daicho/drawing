@@ -8,8 +8,8 @@
   <!-- ページ操作 -->
   <div class="page">
     <div class="prev">
-      <form method="post"action="/prev">
-        <input type="submit" value="Prev" <%= @page == 1 ? 'disabled' : ''  %>>
+      <form method="post" action="/prev">
+        <input type="submit" value="Prev" <%= @page == 1 ? 'disabled' : '' %>>
         <input type="hidden" name="page" value="<%= @page %>">
       </form>
     </div>
@@ -59,9 +59,13 @@
           </tr>
         </table>
       </div>
-      <div class="text">
-        <%= post.exist == 1 ? post.text : '削除されました' %><br>
-      </div>
+      <% if post.kind == @type_text %>
+        <div class="text">
+          <%= post.exist == 1 ? post.text : '削除されました' %><br>
+        </div>
+      <% else %>
+        <img src="<%= post.text %>" alt="">
+      <% end %>
       <hr>
     <% end %>
   </div>

@@ -1,60 +1,62 @@
   <script type="text/javascript" src="/js/draw.js"></script>
 
-  <div id="top">
-    <div id="tool">
-      <table id="tool-top">
-        <tr>
-          <td><img src="/image/eraser.png"></td>
-          <td onclick="mode = Mode.eraser; weight = 20;"><img src="/image/pen-big.png"></td>
-          <td onclick="mode = Mode.eraser; weight = 15;"><img src="/image/pen-medium.png"></td>
-          <td onclick="mode = Mode.eraser; weight = 10;"><img src="/image/pen-small.png"></td>
-        </tr>
-        <tr>
-          <td><img src="/image/pen.png"></td>
-          <td onclick="mode = Mode.pen; weight = 15;"><img src="/image/pen-big.png"></td>
-          <td onclick="mode = Mode.pen; weight = 10;"><img src="/image/pen-medium.png"></td>
-          <td onclick="mode = Mode.pen; weight = 5;"><img src="/image/pen-small.png"></td>
-        </tr>
-        <tr>
-          <td><img onclick="undo()" src="/image/undo.png" ></td>
-          <td><img onclick="redo()" src="/image/redo.png" ></td>
-        </tr>
-      </table>
-      <table id="pallet">
-        <tr>
-          <td><div id="color-DeepRed"     onclick="color = Color.deepRed"></div></td>
-          <td><div id="color-Purple"      onclick="color = Color.purple"></div></td>
-          <td><div id="color-Green"       onclick="color = Color.green"></div></td>
-          <td><div id="color-VividGreen"  onclick="color = Color.vividGreen"></div></td>
-        </tr>
-        <tr>
-          <td><div id="color-Red"         onclick="color = Color.red"></div></td>
-          <td><div id="color-Blue"        onclick="color = Color.blue"></div></td>
-          <td><div id="color-Yellow"      onclick="color = Color.yellow"></div></td>
-          <td><div id="color-DarkGreen"   onclick="color = Color.darkGreen"></div></td>
-        </tr>
-        <tr>
-          <td><div id="color-SalmonPink"  onclick="color = Color.salmonPink"></div></td>
-          <td><div id="color-DeepBlue"    onclick="color = Color.deepBlue"></div></td>
-          <td><div id="color-VividOrange" onclick="color = Color.vividOrange"></div></td>
-          <td><div id="color-Gray"        onclick="color = Color.gray"></div></td>
-        </tr>
-        <tr>
-          <td><div id="color-HotPink"     onclick="color = Color.hotPink"></div></td>
-          <td><div id="color-LightBlue"   onclick="color = Color.lightBlue"></div></td>
-          <td><div id="color-Orange"      onclick="color = Color.orange"></div></td>
-          <td><div id="color-Black"       onclick="color = Color.black"></div></td>
-        </tr>
-        <tr>
-          <td><div id="color-Pink"        onclick="color = Color.pink"></div></td>
-          <td><div id="color-VividBlue"   onclick="color = Color.vividBlue"></div></td>
-          <td><div id="color-Beige"       onclick="color = Color.beige"></div></td>
-          <td><div id="color-White"       onclick="color = Color.white"></div></td>
-        </tr>
-      </table>
-    </div>
-    <div id="canvas-box">
-      <canvas id="imageCanvas" width=466 height=466></canvas>
-      <canvas id="canvas" width=466 height=466></canvas>
-    </div>
+  <div id="tool">
+    <table id="tool-top">
+      <tr>
+        <td><img src="/image/eraser.png"></td>
+        <td onclick="mode = Mode.eraser; weight = 20;"><img src="/image/pen-big.png"></td>
+        <td onclick="mode = Mode.eraser; weight = 15;"><img src="/image/pen-medium.png"></td>
+        <td onclick="mode = Mode.eraser; weight = 10;"><img src="/image/pen-small.png"></td>
+      </tr>
+      <tr>
+        <td><img src="/image/pen.png"></td>
+        <td onclick="mode = Mode.pen; weight = 15;"><img src="/image/pen-big.png"></td>
+        <td onclick="mode = Mode.pen; weight = 10;"><img src="/image/pen-medium.png"></td>
+        <td onclick="mode = Mode.pen; weight = 5;"><img src="/image/pen-small.png"></td>
+      </tr>
+      <tr>
+        <td><img onclick="undo()" src="/image/undo.png" ></td>
+        <td><img onclick="redo()" src="/image/redo.png" ></td>
+      </tr>
+    </table>
+    <table id="pallet">
+      <tr>
+        <td><div id="color-DeepRed"     onclick="color = Color.deepRed"></div></td>
+        <td><div id="color-Purple"      onclick="color = Color.purple"></div></td>
+        <td><div id="color-Green"       onclick="color = Color.green"></div></td>
+        <td><div id="color-VividGreen"  onclick="color = Color.vividGreen"></div></td>
+      </tr>
+      <tr>
+        <td><div id="color-Red"         onclick="color = Color.red"></div></td>
+        <td><div id="color-Blue"        onclick="color = Color.blue"></div></td>
+        <td><div id="color-Yellow"      onclick="color = Color.yellow"></div></td>
+        <td><div id="color-DarkGreen"   onclick="color = Color.darkGreen"></div></td>
+      </tr>
+      <tr>
+        <td><div id="color-SalmonPink"  onclick="color = Color.salmonPink"></div></td>
+        <td><div id="color-DeepBlue"    onclick="color = Color.deepBlue"></div></td>
+        <td><div id="color-VividOrange" onclick="color = Color.vividOrange"></div></td>
+        <td><div id="color-Gray"        onclick="color = Color.gray"></div></td>
+      </tr>
+      <tr>
+        <td><div id="color-HotPink"     onclick="color = Color.hotPink"></div></td>
+        <td><div id="color-LightBlue"   onclick="color = Color.lightBlue"></div></td>
+        <td><div id="color-Orange"      onclick="color = Color.orange"></div></td>
+        <td><div id="color-Black"       onclick="color = Color.black"></div></td>
+      </tr>
+      <tr>
+        <td><div id="color-Pink"        onclick="color = Color.pink"></div></td>
+        <td><div id="color-VividBlue"   onclick="color = Color.vividBlue"></div></td>
+        <td><div id="color-Beige"       onclick="color = Color.beige"></div></td>
+        <td><div id="color-White"       onclick="color = Color.white"></div></td>
+      </tr>
+    </table>
   </div>
+  <div id="canvas-box">
+    <canvas id="imageCanvas" width=466 height=466></canvas>
+    <canvas id="canvas" width=466 height=466></canvas>
+  </div>
+  <form id="new_draw" method="post" action="/new_draw">
+    <input type="button" value="投稿" onclick="post();">
+    <input type="hidden" name="image">
+  </form>
