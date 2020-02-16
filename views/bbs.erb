@@ -59,12 +59,17 @@
           </tr>
         </table>
       </div>
-      <% if post.kind == @type_text %>
-        <div class="text">
-          <%= post.exist == 1 ? post.text : '削除されました' %><br>
-        </div>
+      <% if post.exist == 0 %>
+        削除されました<br>
       <% else %>
-        <img src="<%= post.text %>" alt="">
+        <% if post.kind == @type_text %>
+          <div class="text">
+            <%= post.text %><br>
+          </div>
+        <% else %>
+          <img src="<%= post.text %>"><br>
+          <a href="/draw/<%= post.number %>">この絵を元にしておえかき</a>
+        <% end %>
       <% end %>
       <hr>
     <% end %>
@@ -80,5 +85,5 @@
       </form>
     </div>
 
-    <a href="/draw">イラストを書き込み</a>
+    <a href="/draw/0">イラストを書き込み</a>
   <% end %>

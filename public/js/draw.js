@@ -76,14 +76,11 @@ class History {
 }
 
 // キャンバス
-let imageCanvas;
-let imageContext;
 let canvas;
 let context;
 let history;
 
-// 座標
-let x, y;
+// 前回の座標
 let px, py;
 
 // ペン
@@ -97,8 +94,6 @@ function init() {
     // キャンバスを取得
     canvas = document.getElementById("canvas");
     context = canvas.getContext("2d");
-    imageCanvas = document.getElementById("imageCanvas");
-    imageContext = imageCanvas.getContext("2d");
     history = new History(canvas);
 
     // イベントリスナーを登録
@@ -144,7 +139,7 @@ function onMove(e) {
 }
 
 // 線を引く
-function drawLine(X, Y) {
+function drawLine(x, y) {
     // キャンバスの描画モードを変更
     switch (mode) {
         case Mode.pen: // ペン
@@ -162,16 +157,16 @@ function drawLine(X, Y) {
     context.beginPath();
 
     if (px == null || py == null)
-        context.moveTo(X, Y);
+        context.moveTo(x, y);
     else
         context.moveTo(px, py);
 
-    context.lineTo(X, Y);
+    context.lineTo(x, y);
     context.stroke();
     context.closePath();
 
-    px = X;
-    py = Y;
+    px = x;
+    py = y;
 }
 
 // 元に戻す
@@ -201,14 +196,17 @@ function copyCanvas(srcCanvas) {
 
 // 投稿
 function post() {
+    // 合成用のキャンバスを作成
     let finalCanvas = document.createElement("canvas")
     finalCanvas.width = canvas.width;
     finalCanvas.height = canvas.height;
 
+    // 元の画像と合成
     let finalContext = finalCanvas.getContext("2d");
     finalContext.drawImage(document.getElementById("imageCanvas"), 0, 0);
     finalContext.drawImage(canvas, 0, 0);
 
+    // 投稿
     let image = finalCanvas.toDataURL("image/png");
     document.forms.new_draw.image.value = image;
     document.forms.new_draw.submit();

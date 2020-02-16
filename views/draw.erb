@@ -53,10 +53,13 @@
     </table>
   </div>
   <div id="canvas-box">
-    <canvas id="imageCanvas" width=466 height=466></canvas>
+    <% if @origin != 0 %>
+      <img id="imageCanvas" src="<%= Post.find(@origin).text %>" width=466 height=466>
+    <% end %>
     <canvas id="canvas" width=466 height=466></canvas>
   </div>
   <form id="new_draw" method="post" action="/new_draw">
     <input type="button" value="投稿" onclick="post();">
+    <input type="hidden" name="origin" value="<%= @origin %>">
     <input type="hidden" name="image">
   </form>

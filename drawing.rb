@@ -110,7 +110,17 @@ delete '/delete' do
 end
 
 # お絵かき
-get '/draw' do
+get '/draw/:origin' do
+    @origin = params[:origin]
+
+    if Post.exists?(@origin)
+        if Post.find(@origin).kind != TYPE_DRAW
+            @origin = 0
+        end
+    else
+        @origin = 0
+    end
+
     @text_max = TEXT_MAX
     @title = 'イラスト投稿'
     @css = 'draw.css'
