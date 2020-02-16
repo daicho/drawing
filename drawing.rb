@@ -46,6 +46,7 @@ end
 # エラーページ
 get '/error' do
     @title = 'Error'
+    @ccs = 'error.css'
     erb :error
 end
 
@@ -111,6 +112,7 @@ end
 # お絵かき
 get '/draw' do
     @title = 'イラスト投稿'
+    @ccs = 'draw.css'
     erb :draw
 end
 
@@ -120,6 +122,7 @@ get '/signup' do
     @userid_max = USERID_MAX
     @pass_max = PASS_MAX
     @title = '新規登録'
+    @ccs = 'signup.css'
     erb :signup
 end
 
@@ -155,6 +158,7 @@ get '/login' do
     @userid_max = USERID_MAX
     @pass_max = PASS_MAX
     @title = 'ログイン'
+    @ccs = 'login.css'
     erb :login
 end
 
@@ -184,6 +188,7 @@ end
 # ログイン失敗
 get '/failure' do
     @title = 'Login Failed'
+    @ccs = 'failure.css'
     erb :failure
 end
 
@@ -191,12 +196,14 @@ end
 get '/logout' do
     session.clear
     @title = 'ログアウト'
+    @ccs = 'logout.css'
     erb :logout
 end
 
 # バッドリクエスト
 get '/badrequest' do
     @title = 'Bad Request'
+    @ccs = 'badrequest.css'
     erb :badrequest
 end
 
@@ -218,6 +225,7 @@ get '/:page' do
         redirect '/error'
     else
         @title = '掲示板'
+        @ccs = 'bbs.css'
         erb :bbs
     end
 end
