@@ -50,26 +50,6 @@ get '/error' do
     erb :error
 end
 
-# 前のページへ
-post '/prev' do
-    page = params[:page].to_i - 1
-
-    # 範囲内ならリダイレクト
-    if page >= 1
-        redirect "/#{page}"
-    end
-end
-
-# 次のページへ
-post '/next' do
-    page = params[:page].to_i + 1
-
-    # 範囲内ならリダイレクト
-    if page <= page_num(Post.all.length)
-        redirect "/#{page}"
-    end
-end
-
 # テキスト投稿
 post '/new_text' do
     if session[:login_flag]
@@ -139,7 +119,7 @@ post '/new_draw' do
         post.time = Time.now.strftime('%Y/%m/%d(%a) %H:%M:%S')
         post.userid = session[:login_userid]
         post.text = params[:image]
-        post.origin = 0
+        post.origin = params[:origin].to_i
         post.save
 
         redirect '/'
@@ -165,7 +145,7 @@ post '/regist' do
     password = params[:password]
     re_password = params[:re_password]
 
-    if password == re_password
+    if !Account.exists?(userid) && password == re_password
         r = Random.new
         salt = Digest::MD5.hexdigest(r.bytes(20))
         hashed = Digest::MD5.hexdigest(salt + password)
@@ -181,7 +161,7 @@ post '/regist' do
         session[:login_userid] = userid
         redirect '/'
     else
-        redirect '/badrequest'
+        redirect '/failure'
     end
 end
 
@@ -219,7 +199,7 @@ end
 
 # ログイン失敗
 get '/failure' do
-    @title = 'Login Failed'
+    @title = 'Failed'
     @css = 'failure.css'
     erb :failure
 end

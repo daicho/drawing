@@ -1,18 +1,10 @@
 @charset "UTF-8";
 
 .page {
-    display: flex;
-    padding-top: 10px;
-    padding-bottom: 20px;
+    font-size: 150%;
 }
 
-.pagenum {
-    font-size: 14pt;
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
-.id {
+.number {
     font-size: 12pt;
     font-weight: bold;
 }

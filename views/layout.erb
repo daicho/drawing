@@ -7,7 +7,19 @@
   <link rel="stylesheet" href="/css/<%= @css %>">
 </head>
 <body>
-  <a href="/"><h1>ABCDrawing</h1></a>
+  <header id="head">
+    <a href="/"><img src="/image/logo.png" alt="ABCDrawing" width="300"></a><br>
+
+    <div class="buttons">
+      <% if session[:login_flag] %>
+        <a href="/logout"><img src="/image/logout.png" alt="ログアウト" width="147.5"></a>
+      <% else %>
+        <a href="/login"><img src="/image/login.png" alt="ログイン" width="147.5"></a>
+      <% end %>
+      <a href="/signup"><img src="/image/signup.png" alt="新規登録" width="147.5"></a>
+    </div>
+  </header>
+
   <h2><%= @title %></h2>
   <%= yield %>
 </body>

@@ -1,31 +1,17 @@
-  <% if session[:login_flag] %>
-    <a href="/logout">ログアウト</a><br>
-  <% else %>
-    <a href="/login">ログイン</a><br>
-    <a href="/signup">新規登録</a><br>
-  <% end %>
-
   <!-- ページ操作 -->
   <div class="page">
-    <div class="prev">
-      <form method="post" action="/prev">
-        <input type="submit" value="Prev" <%= @page == 1 ? 'disabled' : '' %>>
-        <input type="hidden" name="page" value="<%= @page %>">
-      </form>
-    </div>
+    <a href="/1">&lt;&lt;</a>
+    <% if @page > 1 %>
+      <a href="/<%= @page - 1 %>">&lt;</a>
+    <% end %>
 
-    <div class="pagenum">
-      <%= @page %>/<%= @last_page %>
-    </div>
+    <%= @page %>/<%= @last_page %>
 
-    <div class="next">
-      <form method="post" action="/next">
-        <input type="submit" value="Next" <%= @page == @last_page ? 'disabled' : '' %>>
-        <input type="hidden" name="page" value="<%= @page %>">
-      </form>
-    </div>
+    <% if @page < @last_page %>
+      <a href="/<%= @page + 1 %>">&gt;</a>
+    <% end %>
+    <a href="/<%= @last_page %>">&gt;&gt;</a>
   </div>
-  <hr>
 
   <!-- 投稿一覧 -->
   <div class="post">
@@ -42,7 +28,8 @@
     <% cur_posts = Post.all[(@page - 1) * @page_max, disp_len] %>
     <% cur_posts.each do |post| %>
       <% account = Account.find(post.userid) %>
-      <div class="sig">
+      <div id="post<%= post.id %>">
+        <hr>
         <table cellspacing="10">
           <tr align="left">
             <td class="number"><%= post.number %></td>
@@ -58,21 +45,24 @@
             <% end %>
           </tr>
         </table>
-      </div>
-      <% if post.exist == 0 %>
-        削除されました<br>
-      <% else %>
-        <% if post.kind == @type_text %>
-          <div class="text">
-            <%= post.text %><br>
-          </div>
+        <% if post.exist == 0 %>
+          削除されました<br>
         <% else %>
-          <img src="<%= post.text %>"><br>
-          <a href="/draw/<%= post.number %>">この絵を元にしておえかき</a>
+          <% if post.kind == @type_text %>
+            <div class="text">
+              <%= post.text %><br>
+            </div>
+          <% else %>
+            <img src="<%= post.text %>" width="300"><br>
+            <% if post.origin != 0 %>
+              <a href="/<%= ((post.origin - 1) / @page_max).to_i + 1%>#post<%= post.origin %>">>><%= post.origin %></a>を元におえかきしました<br>
+            <% end %>
+            <a href="/draw/<%= post.number %>">この絵を元にしておえかき！</a><br>
+          <% end %>
         <% end %>
-      <% end %>
-      <hr>
+      </div>
     <% end %>
+    <hr>
   </div>
 
   <!-- 入力フォーム -->

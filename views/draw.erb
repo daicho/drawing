@@ -1,4 +1,5 @@
   <script type="text/javascript" src="/js/draw.js"></script>
+  <script>window.onload = init;</script>
 
   <div id="tool">
     <table id="tool-top">
@@ -15,8 +16,10 @@
         <td onclick="mode = Mode.pen; weight = 5;"><img src="/image/pen-small.png"></td>
       </tr>
       <tr>
+        <td></td>
         <td><img onclick="undo()" src="/image/undo.png" ></td>
         <td><img onclick="redo()" src="/image/redo.png" ></td>
+        <td></td>
       </tr>
     </table>
     <table id="pallet">
@@ -53,13 +56,13 @@
     </table>
   </div>
   <div id="canvas-box">
-    <% if @origin != 0 %>
-      <img id="imageCanvas" src="<%= Post.find(@origin).text %>" width=466 height=466>
-    <% end %>
-    <canvas id="canvas" width=466 height=466></canvas>
+    <img id="imageCanvas" src="<%= @origin == 0 ? '/image/white.png' : Post.find(@origin).text %>" width="466" height="466">
+    <canvas id="canvas" width="466" height="466"></canvas>
   </div>
+
+  <a href="#" onclick="post();"><img id="post" src="/image/post.png" alt="投稿" width="200"></a>
+
   <form id="new_draw" method="post" action="/new_draw">
-    <input type="button" value="投稿" onclick="post();">
     <input type="hidden" name="origin" value="<%= @origin %>">
     <input type="hidden" name="image">
   </form>

@@ -2,9 +2,11 @@
 
 html {
     color: black;
-    background: #CCFFCC;
+    background: #F0F0F0;
 }
 
-h1 {
-    color: navy;
+h2 {
+    background: #FFFFFF;
+    font-size: 200%;
+    border-bottom: double 5px #FFC778;
 }
